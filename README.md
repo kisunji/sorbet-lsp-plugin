@@ -3,7 +3,7 @@
 ![Build](https://github.com/kisunji/sorbet-lsp-plugin/workflows/Build/badge.svg)
 
 <!-- Plugin description -->
-LSP integration for Sorbet.
+Language Server Protocol (LSP) integration for Sorbet, a fast, powerful type checker for Ruby. This plugin provides real-time type checking, code completion, diagnostics, and navigation features powered by the Sorbet language server.
 <!-- Plugin description end -->
 
 ## Requirements
