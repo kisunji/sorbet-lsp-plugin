@@ -1,15 +1,46 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.kisunji.sorbetlspplugin</id>
-    <name>sorbet-lsp-plugin</name>
+    <name>Sorbet LSP</name>
     <vendor>kisunji</vendor>
 
-    <depends>com.intellij.modules.platform</depends>
+    <description><![CDATA[
+    Language Server Protocol (LSP) integration for Sorbet, a fast, powerful type checker for Ruby.
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <h3>Features</h3>
+    <ul>
+      <li>Real-time type checking and diagnostics</li>
+      <li>Go to definition and type definitions</li>
+      <li>Hover for type information</li>
+      <li>Code completion powered by Sorbet</li>
+      <li>Find all references</li>
+      <li>Document symbols and code outline</li>
+      <li>Quick fixes and code actions</li>
+    </ul>
+
+    <h3>Requirements</h3>
+    <ul>
+      <li>Sorbet gem installed (<code>gem install sorbet</code>)</li>
+      <li>Configured Sorbet project (<code>srb init</code>)</li>
+      <li>Watchman (recommended for optimal performance)</li>
+    </ul>
+
+    <p>Note: This plugin requires IntelliJ IDEA Ultimate or other JetBrains Ultimate IDEs (RubyMine, etc.).</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lsp</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.kisunji.sorbetlspplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.kisunji.sorbetlspplugin.startup.MyProjectActivity" />
+        <projectConfigurable
+            parentId="tools"
+            instance="com.github.kisunji.sorbetlspplugin.settings.SorbetSettingsConfigurable"
+            id="com.github.kisunji.sorbetlspplugin.settings.SorbetSettingsConfigurable"
+            displayName="Sorbet"/>
+        <statusBarWidgetFactory implementation="com.github.kisunji.sorbetlspplugin.ui.SorbetStatusBarWidgetFactory" id="SorbetOperationStatus"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij.platform.lsp">
+        <serverSupportProvider implementation="com.github.kisunji.sorbetlspplugin.lsp.SorbetLspServerSupportProvider"/>
     </extensions>
 </idea-plugin>

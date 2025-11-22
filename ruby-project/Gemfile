@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
-gem 'sorbet', '~> 0.5'
-gem 'sorbet-runtime', '~> 0.5'
+gem 'sorbet', '~> 0.6'
+gem 'sorbet-runtime', '~> 0.6'
