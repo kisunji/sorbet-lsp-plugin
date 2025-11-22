@@ -23,7 +23,6 @@ class SorbetLspServerDescriptor(project: Project) : ProjectWideLspServerDescript
 
     override fun createCommandLine(): GeneralCommandLine {
         val settings = SorbetSettings.getInstance(project)
-        val isWindows = System.getProperty("os.name").lowercase().contains("windows")
 
         val commandLine = when {
             settings.state.customSorbetPath.isNotEmpty() -> {
@@ -31,12 +30,12 @@ class SorbetLspServerDescriptor(project: Project) : ProjectWideLspServerDescript
                 GeneralCommandLine(settings.state.customSorbetPath, "tc", "--lsp", "--dir=.")
             }
             isUsingBundler() -> {
-                val bundleExe = findExecutableInPath("bundle", isWindows)
+                val bundleExe = findExecutableInPath("bundle")
                 LOG.info("Using bundler: $bundleExe")
                 GeneralCommandLine(bundleExe, "exec", "srb", "tc", "--lsp", "--dir=.")
             }
             else -> {
-                val srbExe = findExecutableInPath("srb", isWindows)
+                val srbExe = findExecutableInPath("srb")
                 LOG.info("Using srb from PATH: $srbExe")
                 GeneralCommandLine(srbExe, "tc", "--lsp", "--dir=.")
             }
@@ -78,12 +77,7 @@ class SorbetLspServerDescriptor(project: Project) : ProjectWideLspServerDescript
         return client
     }
 
-    private fun findExecutableInPath(name: String, isWindows: Boolean): String {
-        if (isWindows) {
-            PathEnvironmentVariableUtil.findInPath("$name.bat")?.let { return it.absolutePath }
-            PathEnvironmentVariableUtil.findInPath("$name.cmd")?.let { return it.absolutePath }
-        }
-
+    private fun findExecutableInPath(name: String): String {
         PathEnvironmentVariableUtil.findInPath(name)?.let { return it.absolutePath }
 
         LOG.warn("$name not found in PATH")
