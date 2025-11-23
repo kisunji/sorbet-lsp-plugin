@@ -1,0 +1,5 @@
+<idea-plugin>
+  <extensions defaultExtensionNs="com.intellij.platform.lsp">
+    <serverSupportProvider implementation="com.github.kisunji.sorbetlspplugin.lsp.SorbetLspServerSupportProvider"/>
+  </extensions>
+</idea-plugin>
