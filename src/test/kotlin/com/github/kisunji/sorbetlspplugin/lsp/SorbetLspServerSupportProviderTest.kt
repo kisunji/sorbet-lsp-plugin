@@ -2,7 +2,6 @@ package com.github.kisunji.sorbetlspplugin.lsp
 
 import com.intellij.platform.lsp.api.LspServerSupportProvider
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import java.io.File
 
 class SorbetLspServerSupportProviderTest : BasePlatformTestCase() {
 
@@ -11,24 +10,6 @@ class SorbetLspServerSupportProviderTest : BasePlatformTestCase() {
     override fun setUp() {
         super.setUp()
         provider = SorbetLspServerSupportProvider()
-
-        val projectDir = project.basePath ?: return
-        val configDir = File(projectDir, "sorbet")
-        configDir.mkdirs()
-        val configFile = File(configDir, "config")
-        configFile.writeText(".")
-    }
-
-    override fun tearDown() {
-        try {
-            val projectDir = project.basePath
-            if (projectDir != null) {
-                File(projectDir, "sorbet/config").delete()
-                File(projectDir, "sorbet").delete()
-            }
-        } finally {
-            super.tearDown()
-        }
     }
 
     fun testFileSupport() {
@@ -125,12 +106,8 @@ class SorbetLspServerSupportProviderTest : BasePlatformTestCase() {
     }
 
     fun testProjectWithoutSorbetConfig() {
-        val projectDir = project.basePath
-        if (projectDir != null) {
-            File(projectDir, "sorbet/config").delete()
-            File(projectDir, "sorbet").delete()
-        }
-
+        // Design decision: We assume ALL Ruby projects use Sorbet with bundler
+        // No need to check for sorbet/config - the LSP server should start for all Ruby files
         var started = false
         val mockStarter = object : LspServerSupportProvider.LspServerStarter {
             override fun ensureServerStarted(descriptor: com.intellij.platform.lsp.api.LspServerDescriptor) {
@@ -141,6 +118,6 @@ class SorbetLspServerSupportProviderTest : BasePlatformTestCase() {
         val rubyFile = myFixture.addFileToProject("test2.rb", "puts 'hello'")
         provider.fileOpened(project, rubyFile.virtualFile, mockStarter)
 
-        assertFalse("LSP server should not have started without sorbet/config", started)
+        assertTrue("LSP server should start for Ruby files even without sorbet/config", started)
     }
 }
