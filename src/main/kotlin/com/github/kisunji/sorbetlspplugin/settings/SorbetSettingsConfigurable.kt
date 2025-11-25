@@ -31,11 +31,6 @@ class SorbetSettingsConfigurable(project: Project) : BoundConfigurable("Sorbet")
                     .bindSelected(settings.state::enableCompletionNudges)
                     .comment("Show notices encouraging upgrade to typed: true")
             }
-            row {
-                checkBox("Show operation notifications")
-                    .bindSelected(settings.state::enableOperationNotifications)
-                    .comment("Display status updates (Indexing, Typechecking, etc.)")
-            }
         }
 
         group("Watchman") {
@@ -59,7 +54,7 @@ class SorbetSettingsConfigurable(project: Project) : BoundConfigurable("Sorbet")
                     .bindText(settings.state::additionalServerFlags)
                     .columns(COLUMNS_LARGE)
 
-                    .comment("e.g., --cache-dir=.sorbet-cache")
+                    .comment("e.g., --lsp-error-cap=1000")
             }
         }
     }

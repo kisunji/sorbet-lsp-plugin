@@ -14,7 +14,6 @@ class SorbetSettings : PersistentStateComponent<SorbetSettings.State> {
         var customSorbetPath: String = "",
         var highlightUntyped: Boolean = true,
         var enableCompletionNudges: Boolean = true,
-        var enableOperationNotifications: Boolean = true,
         var watchmanPath: String = "",
         var disableWatchman: Boolean = false,
         var additionalServerFlags: String = ""

@@ -24,7 +24,6 @@ class SorbetSettingsTest : BasePlatformTestCase() {
         settings.state.customSorbetPath = ""
         settings.state.highlightUntyped = true
         settings.state.enableCompletionNudges = true
-        settings.state.enableOperationNotifications = true
         settings.state.watchmanPath = ""
         settings.state.disableWatchman = false
         settings.state.additionalServerFlags = ""
@@ -36,7 +35,6 @@ class SorbetSettingsTest : BasePlatformTestCase() {
         assertEquals("", state.customSorbetPath)
         assertTrue(state.highlightUntyped)
         assertTrue(state.enableCompletionNudges)
-        assertTrue(state.enableOperationNotifications)
         assertEquals("", state.watchmanPath)
         assertFalse(state.disableWatchman)
         assertEquals("", state.additionalServerFlags)
@@ -67,14 +65,6 @@ class SorbetSettingsTest : BasePlatformTestCase() {
         assertTrue(settings.state.enableCompletionNudges)
     }
 
-    fun testSetEnableOperationNotifications() {
-        settings.state.enableOperationNotifications = false
-        assertFalse(settings.state.enableOperationNotifications)
-
-        settings.state.enableOperationNotifications = true
-        assertTrue(settings.state.enableOperationNotifications)
-    }
-
     fun testSetWatchmanPath() {
         settings.state.watchmanPath = "/opt/homebrew/bin/watchman"
 
@@ -90,9 +80,9 @@ class SorbetSettingsTest : BasePlatformTestCase() {
     }
 
     fun testSetAdditionalServerFlags() {
-        settings.state.additionalServerFlags = "--enable-experimental-hover"
+        settings.state.additionalServerFlags = "--lsp-error-cap=1000"
 
-        assertEquals("--enable-experimental-hover", settings.state.additionalServerFlags)
+        assertEquals("--lsp-error-cap=1000", settings.state.additionalServerFlags)
     }
 
     fun testMultipleSettingsChanges() {

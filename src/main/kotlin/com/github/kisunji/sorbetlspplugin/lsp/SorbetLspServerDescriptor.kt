@@ -58,9 +58,10 @@ class SorbetLspServerDescriptor(project: Project) : ProjectWideLspServerDescript
         return mapOf(
             "highlightUntyped" to settings.state.highlightUntyped,
             "enableTypedFalseCompletionNudges" to settings.state.enableCompletionNudges,
-            "supportsOperationNotifications" to settings.state.enableOperationNotifications,
+            "supportsOperationNotifications" to true,
             "supportsSorbetURIs" to true,
-            "highlightUntypedDiagnosticSeverity" to if (settings.state.highlightUntyped) "everywhere" else "none"
+            // DiagnosticSeverity: 1=Error, 2=Warning, 3=Information, 4=Hint
+            "highlightUntypedDiagnosticSeverity" to if (settings.state.highlightUntyped) 3 else null
         )
     }
 
