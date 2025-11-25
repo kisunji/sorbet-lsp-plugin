@@ -2,7 +2,7 @@ package com.github.kisunji.sorbetlspplugin.lsp
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
-import java.util.concurrent.ConcurrentHashMap
+import java.util.Collections
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Service(Service.Level.PROJECT)
@@ -14,20 +14,24 @@ class SorbetOperationStatus {
         val status: String
     )
 
-    private val currentOperations = ConcurrentHashMap<String, Operation>()
+    private val currentOperations = Collections.synchronizedMap(LinkedHashMap<String, Operation>())
     private val listeners = CopyOnWriteArrayList<() -> Unit>()
 
     fun updateOperation(operationName: String, description: String, status: String) {
-        if (status == "end") {
-            currentOperations.remove(operationName)
-        } else {
-            currentOperations[operationName] = Operation(operationName, description, status)
+        synchronized(currentOperations) {
+            if (status == "end") {
+                currentOperations.remove(operationName)
+            } else {
+                currentOperations[operationName] = Operation(operationName, description, status)
+            }
         }
         notifyListeners()
     }
 
     fun getCurrentOperation(): Operation? {
-        return currentOperations.values.firstOrNull()
+        synchronized(currentOperations) {
+            return currentOperations.values.lastOrNull()
+        }
     }
 
     fun addListener(listener: () -> Unit) {
