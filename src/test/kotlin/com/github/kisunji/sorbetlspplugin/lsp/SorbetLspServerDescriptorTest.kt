@@ -20,12 +20,6 @@ class SorbetLspServerDescriptorTest : BasePlatformTestCase() {
 
     override fun tearDown() {
         try {
-            val projectDir = project.basePath
-            if (projectDir != null) {
-                File(projectDir, "Gemfile").delete()
-                File(projectDir, "sorbet/config").delete()
-                File(projectDir, "sorbet").delete()
-            }
             resetSettings()
         } finally {
             super.tearDown()
@@ -43,47 +37,29 @@ class SorbetLspServerDescriptorTest : BasePlatformTestCase() {
     }
 
     fun testIsSupportedFile() {
-        val projectDir = project.basePath ?: return
-        val configDir = File(projectDir, "sorbet")
-        configDir.mkdirs()
-        val configFile = File(configDir, "config")
-        configFile.writeText(".")
+        val rubyFile = myFixture.addFileToProject("test.rb", "# ruby file")
+        assertTrue(descriptor.isSupportedFile(rubyFile.virtualFile))
 
-        try {
-            val rubyFile = myFixture.addFileToProject("test.rb", "# ruby file")
-            assertTrue(descriptor.isSupportedFile(rubyFile.virtualFile))
+        val javaFile = myFixture.addFileToProject("Test.java", "// java file")
+        assertFalse(descriptor.isSupportedFile(javaFile.virtualFile))
 
-            val javaFile = myFixture.addFileToProject("Test.java", "// java file")
-            assertFalse(descriptor.isSupportedFile(javaFile.virtualFile))
-
-            val kotlinFile = myFixture.addFileToProject("Test.kt", "// kotlin file")
-            assertFalse(descriptor.isSupportedFile(kotlinFile.virtualFile))
-        } finally {
-            configFile.delete()
-            configDir.delete()
-        }
+        val kotlinFile = myFixture.addFileToProject("Test.kt", "// kotlin file")
+        assertFalse(descriptor.isSupportedFile(kotlinFile.virtualFile))
     }
 
     fun testCommandLineWithBundleExec() {
-        val projectDir = project.basePath ?: return
+        // Create Gemfile using VirtualFile API so it's visible to the descriptor
+        myFixture.addFileToProject("Gemfile", "source 'https://rubygems.org'\ngem 'sorbet'")
 
-        val gemfilePath = File(projectDir, "Gemfile")
-        gemfilePath.parentFile?.mkdirs()
-        gemfilePath.writeText("source 'https://rubygems.org'\ngem 'sorbet'")
+        val commandLine = descriptor.createCommandLine()
+        val command = commandLine.commandLineString
 
-        try {
-            val commandLine = descriptor.createCommandLine()
-            val command = commandLine.commandLineString
-
-            assertTrue(
-                "Expected bundle exec srb, got: $command",
-                command.contains("bundle") && command.contains("exec") && command.contains("srb")
-            )
-            assertTrue("Expected tc flag", command.contains("tc"))
-            assertTrue("Expected --lsp flag", command.contains("--lsp"))
-        } finally {
-            gemfilePath.delete()
-        }
+        assertTrue(
+            "Expected bundle exec srb, got: $command",
+            command.contains("bundle") && command.contains("exec") && command.contains("srb")
+        )
+        assertTrue("Expected tc flag", command.contains("tc"))
+        assertTrue("Expected --lsp flag", command.contains("--lsp"))
     }
 
     fun testCommandLineWithCustomPath() {

@@ -25,11 +25,12 @@
       <li>Watchman (recommended for optimal performance)</li>
     </ul>
 
-    <p>Note: This plugin requires IntelliJ IDEA Ultimate or other JetBrains Ultimate IDEs (RubyMine, etc.).</p>
+    <p>Note: This plugin requires RubyMine or IntelliJ IDEA Ultimate with Ruby plugin.</p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lsp</depends>
+    <depends>org.jetbrains.plugins.ruby</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable

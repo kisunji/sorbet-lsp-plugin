@@ -24,9 +24,19 @@ The LSP SDK docs are here: https://plugins.jetbrains.com/docs/intellij/language-
 
 This is the docs for [Sorbet LSP](https://sorbet.org/docs/lsp)
 
+We do not target Windows since Sorbet doesn't
+
 # Self-documenting
 
 You will self-document any findings and behaviours that I call out here so that you will remember for all future engagements.
+
+## Design Decisions
+
+### Sorbet LSP Detection
+- We assume ALL Ruby projects use Sorbet with bundler
+- No need to check for `sorbet/config` or validate Gemfile contents
+- Always use `bundle exec srb tc --lsp` unless user specifies custom command
+- This simplifies the code and reduces edge cases
 
 
 
