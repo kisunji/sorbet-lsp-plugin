@@ -57,12 +57,7 @@ class SorbetStatusBarWidgetFactory : StatusBarWidgetFactory {
             val operationStatus = SorbetOperationStatus.getInstance(project)
             val operation = operationStatus.getCurrentOperation()
 
-            return when {
-                operation == null -> "Sorbet: Idle"
-                operation.operationName == "Indexing" -> "Sorbet: Indexing..."
-                operation.operationName == "Typechecking" -> "Sorbet: Typechecking..."
-                else -> "Sorbet: ${operation.operationName}..."
-            }
+            return operation?.description ?: "Sorbet: Idle"
         }
 
         override fun getTooltipText(): String {

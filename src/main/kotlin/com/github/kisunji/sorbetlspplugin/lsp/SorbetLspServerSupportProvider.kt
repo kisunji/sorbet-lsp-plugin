@@ -11,8 +11,7 @@ class SorbetLspServerSupportProvider : LspServerSupportProvider {
         file: VirtualFile,
         serverStarter: LspServerSupportProvider.LspServerStarter
     ) {
-        // Check if it's a Ruby file by extension or file type
-        if (file.extension == "rb" || file.fileType == RubyFileType.RUBY) {
+        if (file.fileType == RubyFileType.RUBY) {
             serverStarter.ensureServerStarted(SorbetLspServerDescriptor(project))
         }
     }

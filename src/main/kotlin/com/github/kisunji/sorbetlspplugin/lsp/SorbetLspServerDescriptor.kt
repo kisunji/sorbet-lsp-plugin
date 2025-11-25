@@ -2,33 +2,29 @@ package com.github.kisunji.sorbetlspplugin.lsp
 
 import com.github.kisunji.sorbetlspplugin.settings.SorbetSettings
 import com.intellij.execution.configurations.GeneralCommandLine
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.platform.lsp.api.Lsp4jClient
 import com.intellij.platform.lsp.api.LspServerNotificationsHandler
 import com.intellij.platform.lsp.api.ProjectWideLspServerDescriptor
 import org.jetbrains.plugins.ruby.ruby.lang.RubyFileType
-import java.io.File
 
 class SorbetLspServerDescriptor(project: Project) : ProjectWideLspServerDescriptor(project, "Sorbet") {
 
     override fun isSupportedFile(file: VirtualFile): Boolean {
-        // Check if it's a Ruby file by extension or file type
-        return file.extension == "rb" || file.fileType == RubyFileType.RUBY
+        return file.fileType == RubyFileType.RUBY
     }
 
     override fun createCommandLine(): GeneralCommandLine {
         val settings = SorbetSettings.getInstance(project)
 
-        // Use custom command if specified, otherwise always use bundler
         val commandLine = if (settings.state.customSorbetPath.isNotEmpty()) {
             createCustomCommand(settings.state.customSorbetPath)
         } else {
             createBundlerCommand()
         }
 
-        // Add Sorbet-specific flags
         if (settings.state.disableWatchman) {
             commandLine.addParameter("--disable-watchman")
         } else if (settings.state.watchmanPath.isNotEmpty()) {
@@ -40,35 +36,21 @@ class SorbetLspServerDescriptor(project: Project) : ProjectWideLspServerDescript
             commandLine.addParameters(flags)
         }
 
-        // Use Gemfile parent as working directory if available
-        val workDir = getWorkingDirectory()
-        commandLine.withWorkDirectory(workDir)
+        // TODO: There's a chance a project has multiple roots
+        val rootPath = roots[0].toNioPathOrNull()
+        commandLine.withWorkingDirectory(rootPath)
         commandLine.withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
 
-        LOG.info("Working directory: ${workDir.absolutePath}")
+        LOG.info("Working directory: $rootPath")
         return commandLine
     }
 
     private fun createCustomCommand(customPath: String): GeneralCommandLine {
-        // If custom path contains spaces, use shell execution for complex commands
-        return if (customPath.contains(" ")) {
-            GeneralCommandLine("/bin/sh", "-c", "$customPath tc --lsp --dir=.")
-        } else {
-            GeneralCommandLine(customPath, "tc", "--lsp", "--dir=.")
-        }
+        return GeneralCommandLine(customPath.split(" "))
     }
 
     private fun createBundlerCommand(): GeneralCommandLine {
         return GeneralCommandLine("bundle", "exec", "srb", "tc", "--lsp", "--dir=.")
-    }
-
-    private fun getWorkingDirectory(): File {
-        val basePath = project.basePath ?: return File(".")
-
-        // Use Gemfile parent directory if available, otherwise use project base
-        @Suppress("DEPRECATION")
-        val gemfile = project.baseDir?.findChild("Gemfile")
-        return gemfile?.parent?.let { File(it.path) } ?: File(basePath)
     }
 
     override fun createInitializationOptions(): Any {
