@@ -39,6 +39,10 @@
             id="com.github.kisunji.sorbetlspplugin.settings.SorbetSettingsConfigurable"
             displayName="Sorbet"/>
         <statusBarWidgetFactory implementation="com.github.kisunji.sorbetlspplugin.ui.SorbetStatusBarWidgetFactory" id="SorbetOperationStatus"/>
+        <toolWindow
+            id="Sorbet LSP Log"
+            anchor="bottom"
+            factoryClass="com.github.kisunji.sorbetlspplugin.ui.SorbetLogToolWindowFactory"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.platform.lsp">

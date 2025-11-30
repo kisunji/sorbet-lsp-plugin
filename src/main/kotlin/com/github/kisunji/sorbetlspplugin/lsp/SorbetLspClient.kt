@@ -6,6 +6,9 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.platform.lsp.api.Lsp4jClient
 import com.intellij.platform.lsp.api.LspServerNotificationsHandler
+import org.eclipse.lsp4j.MessageParams
+import org.eclipse.lsp4j.ProgressParams
+import org.eclipse.lsp4j.PublishDiagnosticsParams
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification
 
 class SorbetLspClient(
@@ -38,10 +41,60 @@ class SorbetLspClient(
             LOG.info("Operation: $operationName ($status)")
 
             _project?.let {
+                SorbetLogService.getInstance(it).log(
+                    LogDirection.INCOMING,
+                    "sorbet/showOperation",
+                    "operationName=$operationName, description=$description, status=$status"
+                )
                 SorbetOperationStatus.getInstance(it).updateOperation(operationName, description, status)
             }
         } catch (e: Exception) {
             LOG.error("Failed to handle showOperation", e)
         }
+    }
+
+    override fun publishDiagnostics(params: PublishDiagnosticsParams) {
+        _project?.let {
+            SorbetLogService.getInstance(it).log(
+                LogDirection.INCOMING,
+                "textDocument/publishDiagnostics",
+                "uri=${params.uri}, diagnostics=${params.diagnostics.size}"
+            )
+        }
+        super.publishDiagnostics(params)
+    }
+
+    override fun showMessage(params: MessageParams) {
+        _project?.let {
+            SorbetLogService.getInstance(it).log(
+                LogDirection.INCOMING,
+                "window/showMessage",
+                "[${params.type}] ${params.message}"
+            )
+        }
+        super.showMessage(params)
+    }
+
+    override fun logMessage(params: MessageParams) {
+        _project?.let {
+            SorbetLogService.getInstance(it).log(
+                LogDirection.INCOMING,
+                "window/logMessage",
+                "[${params.type}] ${params.message}"
+            )
+        }
+        super.logMessage(params)
+    }
+
+    override fun notifyProgress(params: ProgressParams) {
+        _project?.let {
+            val value = params.value
+            SorbetLogService.getInstance(it).log(
+                LogDirection.INCOMING,
+                "$/progress",
+                "token=${params.token}, value=$value"
+            )
+        }
+        super.notifyProgress(params)
     }
 }
